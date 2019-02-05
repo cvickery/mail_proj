@@ -20,7 +20,7 @@ import smtplib
 
 parser = argparse.ArgumentParser(description='Simplified replacement for /usr/bin/mail',
                                  add_help=False)
-parser.add_argument('--help', action='help')
+parser.add_argument('-?', '--help', action='help')
 parser.add_argument('-s', '--subject', default='Test Message')
 parser.add_argument('-cc', '--cc_addr', nargs='+')
 parser.add_argument('-bcc', '--bcc_addr', nargs='+')
