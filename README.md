@@ -6,6 +6,12 @@ not to process incoming messages. It supports the -s (subject) option of /usr/bi
 up plain text (-p) and html (-h) message parts, but will accept a plain text message body from stdin if neither the -p nor -h option is 
 specified.
 
+## Why?
+
+Bash scripts that sent email using `/usr/bin/mail` on MacOS failed after an Apple security update in January 2019. I was unable to get any
+useful information about the issue from Apple support or on https://developer.apple.com (hundreds of views; zero replies), so I wrote this as a
+workaround.
+
 ## Requirements and Environment
 
   * This is a Python 3 application. The command assumes the interpreter is _/usr/local/bin/python3_. Edit the first line if this path needs
