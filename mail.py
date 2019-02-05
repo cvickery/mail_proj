@@ -8,6 +8,7 @@
 """
 import sys
 import os
+import socket
 import re
 from datetime import datetime
 import argparse
@@ -28,22 +29,18 @@ parser.add_argument('-r', '--reply_addr')
 parser.add_argument('-h', '--html_file', type=argparse.FileType('r'))
 parser.add_argument('-p', '--plaintext_file', type=argparse.FileType('r'))
 parser.add_argument('-d', '--debuglevel', default=0)
-
-smtp_server = os.getenv('SMTP_SERVER')
-if smtp_server is None:
-  smtp_server = 'localhost'
-
-from_addr = os.getenv('EMAIL_SENDER')
-if from_addr is None:
-  parser.add_argument('from_addr')
+parser.add_argument('-f', '--from_addr', default=f"{os.getenv('USER')}@{os.getenv('HOSTNAME')}")
 parser.add_argument('to_addr', nargs='+')
 args = parser.parse_args()
 
-if from_addr is None:
-  from_addr = args.from_addr
+smtp_server = os.getenv('SMTP_SERVER')
+if smtp_server is None:
+  smtp_server = os.getenv('HOSTNAME')
 
 # Be sure the from_addr contains something that looks like it might be an email address.
-#   argparse lets empty strings get through, and then mailer doesn't complain.
+#   Otherwise, argparse lets an empty string get through, and then the mailer doesn't complain,
+#   leaving the user in the dark.
+from_addr = args.from_addr
 if re.search(r'\S+@\S+', from_addr) is None:
   print(f'{sys.argv[0].strip("./")}: error: invalid from_addr', file=sys.stderr)
   exit(1)
@@ -94,7 +91,12 @@ if args.html_file is not None:
   msg.attach(MIMEText(html_body, 'html'))
 
 # Send the message
-server = smtplib.SMTP('smtp_server')
+try:
+  server = smtplib.SMTP(smtp_server)
+except socket.gaierror as err:
+  print(f'{sys.argv[0].strip("./")}: error: unable to connect to smtp server {smtp_server}: {err}',
+        file=sys.stderr)
+  exit(1)
 server.set_debuglevel(debuglevel)
 server.sendmail(from_addr, args.to_addr, msg.as_string())
 server.quit()
