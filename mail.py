@@ -28,6 +28,11 @@ parser.add_argument('-r', '--reply_addr')
 parser.add_argument('-h', '--html_file', type=argparse.FileType('r'))
 parser.add_argument('-p', '--plaintext_file', type=argparse.FileType('r'))
 parser.add_argument('-d', '--debuglevel', default=0)
+
+smtp_server = os.getenv('SMTP_SERVER')
+if smtp_server is None:
+  smtp_server = 'localhost'
+
 from_addr = os.getenv('EMAIL_SENDER')
 if from_addr is None:
   parser.add_argument('from_addr')
@@ -89,7 +94,7 @@ if args.html_file is not None:
   msg.attach(MIMEText(html_body, 'html'))
 
 # Send the message
-server = smtplib.SMTP('smtp.qc.cuny.edu')
+server = smtplib.SMTP('smtp_server')
 server.set_debuglevel(debuglevel)
 server.sendmail(from_addr, args.to_addr, msg.as_string())
 server.quit()
