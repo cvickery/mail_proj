@@ -132,5 +132,11 @@ if args.html_file is not None:
   msg.attach(MIMEText(html_body, 'html'))
 
 # Send the message
-server.sendmail(args.from_addr, all_recipients, msg.as_string())
+try:
+  server.sendmail(args.from_addr, all_recipients, msg.as_string())
+except Exception as e:
+  print(f'{whoami} sending failed: {e}')
+  exit(1)
+
 server.quit()
+exit(0)
