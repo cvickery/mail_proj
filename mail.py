@@ -37,12 +37,6 @@ def parse_addr_str(str):
   return Address(display_name, username, domain)
 
 
-def build_addresses(addr_list):
-  """ Parse command line addresses and put them into proper structure for message headers.
-  """
-  return [parse_addr_str(str) for str in addr_list]
-
-
 parser = argparse.ArgumentParser(description='Simplified replacement for /usr/bin/mail',
                                  add_help=False)
 parser.add_argument('-?', '--help', action='help')
@@ -60,22 +54,19 @@ args = parser.parse_args()
 
 # Be sure all recipients have valid email addresses; build list of all recipents
 if parse_addr_str(args.from_addr) is None:
-  print(f'{whoami} “{args.from_addr}” is not a valid return address')
-  exit(1)
+  exit(f'{whoami} “{args.from_addr}” is not a valid return address')
 
 all_recipients = []
 for recipient in args.cc_addr, args.bcc_addr, args.reply_addr, args.to_addr:
   if type(recipient) == list:
     for r in recipient:
       if parse_addr_str(r) is None:
-        print(f'{whoami} “{r}” is not a valid email address', file=sys.stderr)
-        exit(1)
+        exit(f'{whoami} “{r}” is not a valid email address')
       else:
         all_recipients += [r]
   if type(recipient) == str:
     if parse_addr_str(recipient) is None:
-      print(f'{whoami} “{r}” is not a valid email address', file=sys.stderr)
-      exit(1)
+      exit(f'{whoami} “{r}” is not a valid email address')
     else:
       all_recipients += [recipient]
 all_recipents = ', '.join(all_recipients)
@@ -87,9 +78,7 @@ if smtp_server is None:
 try:
   server = smtplib.SMTP(smtp_server)
 except socket.gaierror as err:
-  print(f'{whoami} unable to connect to smtp server “{smtp_server}”: {err}',
-        file=sys.stderr)
-  exit(1)
+  exit(f'{whoami} unable to connect to smtp server “{smtp_server}”: {err}')
 server.set_debuglevel(args.debuglevel)
 
 # Set up the message parts.
@@ -135,8 +124,7 @@ if args.html_file is not None:
 try:
   server.sendmail(args.from_addr, all_recipients, msg.as_string())
 except Exception as e:
-  print(f'{whoami} sending failed: {e}')
-  exit(1)
+  exit(f'{whoami} sending failed: {e}')
 
 server.quit()
 exit(0)
