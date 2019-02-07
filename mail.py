@@ -16,7 +16,7 @@ import argparse
 from email import message
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from email.utils import make_msgid, formatdate
+from email.utils import make_msgid, localtime, format_datetime
 from email.headerregistry import Address
 import smtplib
 
@@ -84,7 +84,7 @@ server.set_debuglevel(args.debuglevel)
 # Set up the message parts.
 msg = MIMEMultipart('alternative')
 msg['Message-ID'] = make_msgid()
-msg['Date'] = formatdate(datetime.now().timestamp())
+msg['Date'] = format_datetime(localtime())
 msg['From'] = args.from_addr
 msg['Subject'] = args.subject
 msg['To'] = ', '.join(args.to_addr)
