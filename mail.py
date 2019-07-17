@@ -45,7 +45,7 @@ parser.add_argument('-c', '--cc_addr', nargs='+')
 parser.add_argument('-b', '--bcc_addr', nargs='+')
 parser.add_argument('-r', '--reply_addr')
 parser.add_argument('-h', '--html_file', type=argparse.FileType('r'))
-parser.add_argument('-p', '--plaintext_file', type=argparse.FileType('r'))
+parser.add_argument('-t', '--text_file', type=argparse.FileType('r'))
 parser.add_argument('-d', '--debuglevel', type=int, default=0)
 parser.add_argument('-f', '--from_addr',
                     default=f"{os.getenv('USER')} <{os.getenv('USER')}@{os.getenv('HOSTNAME')}>")
@@ -96,8 +96,8 @@ if args.reply_addr is not None:
   msg['Reply-To'] = args.reply_addr
 
 # Plain text body if no files specified
-if args.html_file is None and args.plaintext_file is None:
-  plain_body = ''
+if args.html_file is None and args.text_file is None:
+  text_body = ''
   while True:
       try:
           line = input()
@@ -105,18 +105,16 @@ if args.html_file is None and args.plaintext_file is None:
           break
       if not line:
           break
-      plain_body += line + '\n'
-  msg.attach(MIMEText(plain_body, 'plain'))
+      text_body += line + '\n'
+  msg.attach(MIMEText(text_body, 'plain'))
 
 # Plain text part
-if args.plaintext_file is not None:
-  # f = open(args.plaintext_file, 'r')
-  plain_body = args.plaintext_file.read()
-  msg.attach(MIMEText(plain_body, 'plain'))
+if args.text_file is not None:
+  text_body = args.text_file.read()
+  msg.attach(MIMEText(text_body, 'plain'))
 
 # HTML part
 if args.html_file is not None:
-  # f = open(args.html_file, 'r')
   html_body = args.html_file.read()
   msg.attach(MIMEText(html_body, 'html'))
 
