@@ -46,7 +46,7 @@ parser.add_argument('-b', '--bcc_addr', nargs='+')
 parser.add_argument('-r', '--reply_addr')
 parser.add_argument('-h', '--html_file', type=argparse.FileType('r'))
 parser.add_argument('-t', '--text_file', type=argparse.FileType('r'))
-parser.add_argument('-d', '--debuglevel', type=int, default=0)
+parser.add_argument('-d', '--debug_level', type=int, default=0)
 parser.add_argument('-f', '--from_addr',
                     default=f"{os.getenv('USER')} <{os.getenv('USER')}@{os.getenv('HOSTNAME')}>")
 parser.add_argument('to_addr', nargs='+')
@@ -72,14 +72,24 @@ for recipient in args.cc_addr, args.bcc_addr, args.reply_addr, args.to_addr:
 all_recipents = ', '.join(all_recipients)
 
 # There has to be an SMTP server
-smtp_server = os.getenv('SMTP_SERVER')
+fallback_servers = ['149.4.100.41', '149.4.100.42']   # Only valid at QC
+servers = [os.getenv('SMTP_SERVER')] + fallback_servers
+smtp_server = None
+for server in servers:
+  try:
+    if args.debug_level > 0:
+      print('try', server, file=sys.stderr)
+    smtp_server = smtplib.SMTP(server)
+    if smtp_server is None:
+      continue
+    break
+  except (socket.gaierror, TimeoutError, ConnectionRefusedError) as err:
+    print(f'{whoami} unable to connect to smtp server “{server}”: {err}', file=sys.stderr)
+
 if smtp_server is None:
-  smtp_server = os.getenv('HOSTNAME')
-try:
-  server = smtplib.SMTP(smtp_server)
-except socket.gaierror as err:
-  exit(f'{whoami} unable to connect to smtp server “{smtp_server}”: {err}')
-server.set_debuglevel(args.debuglevel)
+  sys.exit('No viable SMTP server found')
+
+server.set_debuglevel(args.debug_level)
 
 # Set up the message parts.
 msg = MIMEMultipart('alternative')
@@ -120,7 +130,7 @@ if args.html_file is not None:
 
 # Send the message
 try:
-  server.sendmail(args.from_addr, all_recipients, msg.as_string())
+  smtp_server.sendmail(args.from_addr, all_recipients, msg.as_string())
 except Exception as e:
   exit(f'{whoami} sending failed: {e}')
 
