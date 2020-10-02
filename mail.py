@@ -87,9 +87,9 @@ for server in servers:
     print(f'{whoami} unable to connect to smtp server “{server}”: {err}', file=sys.stderr)
 
 if smtp_server is None:
-  sys.exit('No viable SMTP server found')
+  sys.exit('No viable SMTP server')
 
-server.set_debuglevel(args.debug_level)
+smtp_server.set_debuglevel(args.debug_level)
 
 # Set up the message parts.
 msg = MIMEMultipart('alternative')
