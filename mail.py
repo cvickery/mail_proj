@@ -134,5 +134,5 @@ try:
 except Exception as e:
   exit(f'{whoami} sending failed: {e}')
 
-server.quit()
+smtp_server.quit()
 exit(0)
