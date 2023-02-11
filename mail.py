@@ -6,18 +6,20 @@
     This may or may not be a good idea.
       But /usr/bin/mail is broken, and this is my workaround.
 """
-import sys
-import os
-import socket
-import re
-from datetime import datetime
 import argparse
+import os
+import sys
+import re
+import socket
+
+from datetime import datetime
 
 from email import message
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import make_msgid, localtime, format_datetime
 from email.headerregistry import Address
+
 import smtplib
 
 # Prefix for error reporting
@@ -48,7 +50,7 @@ parser.add_argument('-h', '--html_file', type=argparse.FileType('r'))
 parser.add_argument('-t', '--text_file', type=argparse.FileType('r'))
 parser.add_argument('-d', '--debug_level', type=int, default=0)
 parser.add_argument('-f', '--from_addr',
-                    default=f"{os.getenv('USER')} <{os.getenv('USER')}@{os.getenv('HOSTNAME')}>")
+                    default=f"{os.getenv('USER')} <{os.getenv('USER')}@{socket.gethostname()}>")
 parser.add_argument('to_addr', nargs='+')
 args = parser.parse_args()
 
