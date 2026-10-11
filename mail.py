@@ -1,4 +1,4 @@
-#! /usr/local/bin/python3
+#! /usr/bin/env python3
 """ Use pretty much the same commandline args as /usr/bin/mail, but add -t and -h options
     for getting the message body from a text file and/or html file respectively.
     Used only for sending message, not for reading/parsing mail
